@@ -13,22 +13,20 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    private void escrituraAleatoria(String nombre, byte edad, int tel) {
+    public void escrituraSeparadorTamano(String nombre, byte edad, int tel) {
         try {
-            RandomAccessFile archivo = new RandomAccessFile("datos.bin", "rw");
+            RandomAccessFile archivo = new RandomAccessFile("tam.bin", "rw");
 
             long longitudArchivo = archivo.length();
             archivo.seek(longitudArchivo);
 
             archivo.writeBytes(nombre);
-
-            archivo.writeBytes("$");
+            for (int i = nombre.length(); i < 30; i++) {
+                archivo.writeByte(0);
+            }
 
             archivo.writeInt(tel);
-
             archivo.writeByte(edad);
-
-            archivo.writeBytes("#");
 
             archivo.close();
         } catch (FileNotFoundException ex) {
@@ -38,9 +36,9 @@ public class Main {
         }
     }
 
-    private void lecturaAleatoria() {
+    public void lecturaSeparadorTamano() {
         try {
-            RandomAccessFile archivo = new RandomAccessFile("datos.bin", "r"); //r para escribir - w para escribir - rw para hacer ambos
+            RandomAccessFile archivo = new RandomAccessFile("tam.bin", "r"); //r para escribir - w para escribir - rw para hacer ambos
 
             archivo.seek(0);
 
@@ -51,11 +49,11 @@ public class Main {
                 archivo.read(nombreBytes);
                 System.out.println("Nombre: " + new String(nombreBytes));
 
-                byte edad = archivo.readByte();
-                System.out.println("Edad: " + edad);
-
                 int tel = archivo.readInt();
-                System.out.println("Teléfono: " + tel + "\n");
+                System.out.println("Teléfono: " + tel);
+                
+                byte edad = archivo.readByte();
+                System.out.println("Edad: " + edad + "\n");
             }
 
             archivo.close();
@@ -65,7 +63,7 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void escrituraSeparadorBinario(String nombre, byte edad, int tel) {
         try {
             RandomAccessFile archivo = new RandomAccessFile("datos.bin", "rw");
@@ -74,13 +72,9 @@ public class Main {
             archivo.seek(longitudArchivo);
 
             archivo.writeBytes(nombre);
-
             archivo.writeBytes("$");
-
             archivo.writeInt(tel);
-
             archivo.writeByte(edad);
-
             archivo.writeBytes("#");
 
             archivo.close();
@@ -98,34 +92,33 @@ public class Main {
             archivo.seek(0);
 
             byte caracter = 0;
-            int inicio= 0, fin = 0; 
+            int inicio = 0, fin = 0;
             long tam = archivo.length();
 
             do {
                 do {
-                    
+
                     if (caracter == 35) {
                         inicio = fin + 5;
                         fin += 5;
                     }
-                    
+
                     caracter = archivo.readByte();
                     fin++;
-                    
+
                 } while (caracter != 36);
-                
+
                 archivo.seek(inicio);
-                
+
                 byte nombreBytes[] = new byte[(fin - inicio) - 1];
                 archivo.read(nombreBytes);
                 System.out.println("Nombre: " + new String(nombreBytes));
-                
+
                 archivo.readByte();
-                
+
                 System.out.println("Teléfono: " + archivo.readInt());
-                
                 System.out.println("Edad: " + archivo.readByte());
-                
+
             } while (fin < (tam - 7));
 
             archivo.close();
@@ -143,7 +136,7 @@ public class Main {
 
         String nombre;
         byte edad;
-        int tel, opc = 01;
+        int tel, opc = 0;
         boolean salir = false;
 
         do {
@@ -159,7 +152,7 @@ public class Main {
 
                     do {
 
-                        System.out.println("    \nAlmacenamiento de datos secuenciales"
+                        System.out.println("    \nAlmacenamiento de datos secuenciales - Separador binario"
                                 + "\n1.Ingreser datos a la agenda"
                                 + "\n2.Mostrar datos de la agenda"
                                 + "\n3.Regresar al menú principal");
@@ -193,10 +186,45 @@ public class Main {
                     } while (!salir);
 
                     salir = false;
-
                     break;
 
                 case 2:
+
+                    do {
+
+                        System.out.println("    \nAlmacenamiento de datos secuenciales - Separador por tamaño"
+                                + "\n1.Ingreser datos a la agenda"
+                                + "\n2.Mostrar datos de la agenda"
+                                + "\n3.Regresar al menú principal");
+
+                        opc = leer.nextInt();
+
+                        switch (opc) {
+
+                            case 1:
+                                System.out.println("Ingrese el nombre completo");
+                                nombre = letras.nextLine();
+                                System.out.println("Ingese teléfono");
+                                tel = leer.nextInt();
+                                System.out.println("Ingrese edad");
+                                edad = leer.nextByte();
+
+                                main.escrituraSeparadorTamano(nombre, edad, tel);
+                                break;
+
+                            case 2:
+                                System.out.println("\n  Agenda:");
+                                main.lecturaSeparadorTamano();
+                                break;
+
+                            case 3:
+                                salir = true;
+                                break;
+
+                        }
+
+                    } while (!salir);
+                    salir = false;
                     break;
 
                 case 3:
